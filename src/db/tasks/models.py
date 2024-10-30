@@ -24,11 +24,12 @@ class TaskModel(AsyncAttrs, Base):
         cascade='delete'
     )
 
-    # TODO: добавить description
-    # description: Mapped[list["OrganizationModel.menu"]] = relationship(
-    #     back_populates=
-    # )
+    description: Mapped[Optional[list["FoodModel"]]] = relationship(
+        back_populates='tasks',
+        secondary='food_orders_description'
+    )
 
 
 from src.db.organizations.models import OrganizationModel
 from src.db.workers.models import WorkerModel
+from src.db.menu.models import FoodModel

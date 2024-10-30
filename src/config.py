@@ -10,4 +10,5 @@ POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
 POSTGRES_HOST = os.environ.get('POSTGRES_HOST')
 POSTGRES_PORT = os.environ.get('POSTGRES_PORT')
 
-TOKEN = os.environ.get('TOKEN')
+TOKEN_ADMIN = os.environ.get('TOKEN_ADMIN')
+TOKEN_USER = os.environ.get('TOKEN_USER')

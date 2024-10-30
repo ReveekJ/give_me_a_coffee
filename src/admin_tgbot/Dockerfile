@@ -8,10 +8,10 @@ WORKDIR /usr/project
 
 RUN apk add --no-cache --upgrade bash
 
-COPY requirements.txt /usr/project
+COPY ../../requirements.txt /usr/project
 RUN pip install --no-cache --upgrade pip
 RUN pip install --no-cache -r requirements.txt
 
-COPY . .
+COPY ../.. .
 
-CMD ["/bin/bash", "app.sh"]
+CMD ["/bin/bash", "../../admin_tgbot.sh"]

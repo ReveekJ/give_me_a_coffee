@@ -12,6 +12,8 @@ class WorkerModel(AsyncAttrs, Base):
     __tablename__ = "workers"
 
     id: Mapped[BigInteger] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[Optional[str]]
+    username: Mapped[Optional[str]]
     organization_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("organizations.id"))
 
     organization: Mapped["OrganizationModel"] = relationship(
@@ -20,7 +22,7 @@ class WorkerModel(AsyncAttrs, Base):
     )
     tasks: Mapped[Optional[list["TaskModel"]]] = relationship(
         back_populates='worker',
-        cascade='delete'
+        cascade='delete',
     )
 
 

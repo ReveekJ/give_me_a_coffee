@@ -17,7 +17,6 @@ class OrganizationModel(AsyncAttrs, Base):
     owner: Mapped["OwnerModel"] = relationship(
         back_populates='organizations',
         cascade='delete',
-        lazy='selectin'
     )
     workers: Mapped[Optional[list["WorkerModel"]]] = relationship(
         back_populates='organization',

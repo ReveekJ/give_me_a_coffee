@@ -15,7 +15,6 @@ class OwnerModel(AsyncAttrs, Base):
     organizations: Mapped[Optional[list['OrganizationModel']]] = relationship(
         back_populates='owner',
         cascade='delete',
-        lazy='selectin'
     )
 
 

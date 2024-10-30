@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 class WorkerSchema(BaseModel):
     id: int
+    name: Optional[str] = ''
+    username: Optional[str] = ''
     organization_id: int
     tasks: Optional[List["TaskSchema"]] = None  # Вложенные модели
 

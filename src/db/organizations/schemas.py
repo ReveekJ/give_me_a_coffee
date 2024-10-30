@@ -5,10 +5,10 @@ from pydantic import BaseModel
 
 
 class OrganizationSchema(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
     owner_id: int
-    owner: Optional["OwnerSchema"] = None  # Вложенная модель
+    # owner: Optional["OwnerSchema"] = None  # Вложенная модель
     workers: Optional[List["WorkerSchema"]] = None  # Вложенные модели
     tasks: Optional[List["TaskSchema"]] = None  # Вложенные модели
     menu: Optional[List["FoodGroupSchema"]] = None  # Вложенные модели
