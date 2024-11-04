@@ -14,4 +14,4 @@ RUN pip install --no-cache -r requirements.txt
 
 COPY ../.. .
 
-CMD ["/bin/bash", "../../admin_tgbot.sh"]
+CMD ["/bin/bash", "./admin_tgbot.sh"]

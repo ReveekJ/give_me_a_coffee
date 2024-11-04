@@ -6,5 +6,5 @@ from src.db.organizations.schemas import OrganizationSchema
 
 
 class MainMenuData(BaseModel):
-    organization: OrganizationSchema
+    organization_id: int
     selected_worker_id: Optional[int] = None

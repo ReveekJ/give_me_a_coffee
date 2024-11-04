@@ -29,7 +29,9 @@ class OrganizationDB:
         with get_session() as session:
             m = OrganizationModel(**organization.model_dump(exclude={'id'}))
             session.add(m)
-            return int(m.__dict__['id'])
+            session.commit()
+
+            return int(str(m.id))
             # session.commit()
 
     # @staticmethod

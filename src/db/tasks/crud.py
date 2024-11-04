@@ -37,6 +37,7 @@ class OwnerDB:
         with get_session() as session:
             m = TaskModel(**task.model_dump(exclude={'id'}))
             session.add(m)
+            session.commit()
 
     @staticmethod
     def delete_task(worker_id: int) -> None:

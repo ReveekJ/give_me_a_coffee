@@ -1,6 +1,6 @@
 aiogram~=3.3.0
 SQLAlchemy~=2.0.29
-pydantic~=2.9.2
+pydantic
 alembic~=1.13.1
 asyncpg
 aiogram_dialog

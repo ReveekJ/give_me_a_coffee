@@ -7,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db_connect import Base
 
 
-
 class WorkerModel(AsyncAttrs, Base):
     __tablename__ = "workers"
 
@@ -18,11 +17,9 @@ class WorkerModel(AsyncAttrs, Base):
 
     organization: Mapped["OrganizationModel"] = relationship(
         back_populates='workers',
-        cascade='delete'
     )
     tasks: Mapped[Optional[list["TaskModel"]]] = relationship(
         back_populates='worker',
-        cascade='delete',
     )
 
 

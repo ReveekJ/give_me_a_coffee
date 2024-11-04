@@ -1,11 +1,11 @@
-from typing import Optional, List
+from typing import Optional
 
 from pydantic import BaseModel
 
 
 class OwnerSchema(BaseModel):
     id: int
-    organizations: Optional[List["OrganizationSchema"]] = None  # Вложенные модели
+    organizations: Optional[list["OrganizationSchema"]] = []  # Вложенные модели
 
     class Config:
         from_attributes = True

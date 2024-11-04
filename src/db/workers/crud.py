@@ -5,9 +5,9 @@ from src.db.workers.schemas import WorkerSchema
 from src.db_connect import get_session
 
 
-class OwnerDB:
+class WorkersDB:
     @staticmethod
-    def get_owner_by_id(_id: int) -> WorkerSchema:
+    def get_worker_by_id(_id: int) -> WorkerSchema:
         with get_session() as session:
             query = (select(WorkerModel)
                      .where(WorkerModel.id == _id)
@@ -17,13 +17,14 @@ class OwnerDB:
             return WorkerSchema.model_validate(res, from_attributes=True)
 
     @staticmethod
-    def create_owner(worker: WorkerSchema) -> None:
+    def create_worker(worker: WorkerSchema) -> None:
         with get_session() as session:
             m = WorkerModel(**worker.model_dump(exclude={'id'}))
             session.add(m)
+            session.commit()
 
     @staticmethod
-    def delete_owner(worker_id: int) -> None:
+    def delete_worker(worker_id: int) -> None:
         with get_session() as session:
             stmt = delete(WorkerModel).where(WorkerModel.id == worker_id)
             session.execute(stmt)

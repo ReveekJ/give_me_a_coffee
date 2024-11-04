@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -15,7 +16,7 @@ class FoodGroupSchema(BaseModel):
     id: int
     name: str
     organization_id: int
-    food: Optional[List[FoodSchema]] = None  # Вложенные модели
+    food: Optional[list[FoodSchema]] = None  # Вложенные модели
 
     class Config:
         from_attributes = True

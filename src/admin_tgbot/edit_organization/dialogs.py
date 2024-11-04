@@ -2,13 +2,14 @@ from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.kbd import Button, SwitchTo, Select, Group, Back
 from aiogram_dialog.widgets.text import Format, Multi
 
-from src.admin_tgbot.edit_organization.getters import workers_getter, add_workers_getter
-from src.admin_tgbot.edit_organization.handlers import on_start_main_dialog, select_worker_handler
+from src.admin_tgbot.edit_organization.getters import workers_getter, add_workers_getter, actions_with_worker_getter
+from src.admin_tgbot.edit_organization.handlers import on_start_main_dialog, select_worker_handler, \
+    delete_selected_worker
 from src.admin_tgbot.edit_organization.states import MainMenuSG
 
 edit_organization_dialog = Dialog(
     Window(
-        Format('основное меню'),
+        Format('Основное меню'),
         SwitchTo(
             Format('Изменить работников'),
             id='change_workers',
@@ -51,6 +52,21 @@ edit_organization_dialog = Dialog(
         state=MainMenuSG.add_workers
     ),
     Window(
+        Multi(
+            Format('Ты изменяешь работника:\n\n'),
+            Format('{worker_name}')
+        ),
+        Button(
+            text=Format('Удалить из организации'),
+            id='delete_from_organization',
+            on_click=delete_selected_worker,
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='switch_to_list_of_workers',
+            state=MainMenuSG.list_of_workers
+        ),
+        getter=actions_with_worker_getter,
         state=MainMenuSG.actions_with_worker
     ),
     on_start=on_start_main_dialog

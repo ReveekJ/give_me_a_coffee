@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -8,7 +8,7 @@ class WorkerSchema(BaseModel):
     name: Optional[str] = ''
     username: Optional[str] = ''
     organization_id: int
-    tasks: Optional[List["TaskSchema"]] = None  # Вложенные модели
+    tasks: Optional[list["TaskSchema"]] = []  # Вложенные модели
 
     class Config:
         from_attributes = True
