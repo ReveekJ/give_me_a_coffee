@@ -19,7 +19,7 @@ class WorkersDB:
     @staticmethod
     def create_worker(worker: WorkerSchema) -> None:
         with get_session() as session:
-            m = WorkerModel(**worker.model_dump(exclude={'id'}))
+            m = WorkerModel(**worker.model_dump())
             session.add(m)
             session.commit()
 

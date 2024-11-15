@@ -7,39 +7,48 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db_connect import Base
 
 
-class FoodGroupModel(AsyncAttrs, Base):
-    __tablename__ = "food_groups"
+class FoodModel(AsyncAttrs, Base):
+    __tablename__ = "foods"
 
     id: Mapped[BigInteger] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     name: Mapped[str]
     organization_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("organizations.id"))
 
     organization: Mapped["OrganizationModel"] = relationship(
-        back_populates='menu',
+        back_populates='foods',
         cascade='delete'
     )
-    food: Mapped[Optional[list["FoodModel"]]] = relationship(
-        back_populates='food_group',
-        cascade='delete'
+    possible_ingredients: Mapped[Optional[list["IngredientModel"]]] = relationship(
+        back_populates='foods',
+        secondary='possible_ingredients'
+    )
+    tasks: Mapped[Optional[list["TaskModel"]]] = relationship(
+        back_populates='food',
     )
 
 
-class FoodModel(AsyncAttrs, Base):
-    __tablename__ = 'food'
+class IngredientModel(AsyncAttrs, Base):
+    __tablename__ = 'ingredients'
 
     id: Mapped[BigInteger] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     name: Mapped[str]
-    food_group_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("food_groups.id"))
+    organization_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("organizations.id"))
 
-    food_group: Mapped[FoodGroupModel] = relationship(
-        back_populates='food',
+    organization: Mapped["OrganizationModel"] = relationship(
+        back_populates='ingredients',
         cascade='delete'
     )
 
-    tasks: Mapped[Optional[list["TaskModel"]]] = relationship(
-        back_populates='description',
-        secondary='food_orders_description'
+    foods: Mapped[Optional[list["FoodModel"]]] = relationship(
+        back_populates='possible_ingredients',
+        secondary='possible_ingredients'
     )
+
+    tasks: Mapped[Optional[list["TaskModel"]]] = relationship(
+        back_populates='ingredients',
+        secondary='task_ingredients'
+    )
+
 
 from src.db.organizations.models import OrganizationModel
 from src.db.tasks.models import TaskModel

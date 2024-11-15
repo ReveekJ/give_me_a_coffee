@@ -12,7 +12,8 @@ from src.db.tasks.models import *
 from src.db.owners.models import *
 from src.db.workers.models import *
 from src.db.organizations.models import *
-from src.db.food_orders.models import *
+from src.db.task_ingredients.models import *
+from src.db.possible_ingredients.models import *
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

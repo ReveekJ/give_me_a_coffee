@@ -14,6 +14,7 @@ class TaskModel(AsyncAttrs, Base):
 
     organization_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("organizations.id"))
     worker_id: Mapped[Optional[BigInteger]] = mapped_column(BigInteger, ForeignKey("workers.id"))
+    food_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("foods.id"))
 
     organization: Mapped["OrganizationModel"] = relationship(
         back_populates='tasks',
@@ -24,12 +25,16 @@ class TaskModel(AsyncAttrs, Base):
         cascade='delete'
     )
 
-    description: Mapped[Optional[list["FoodModel"]]] = relationship(
+    food: Mapped["FoodModel"] = relationship(
         back_populates='tasks',
-        secondary='food_orders_description'
+    )
+    ingredients: Mapped[Optional[list["IngredientModel"]]] = relationship(
+        back_populates='tasks',
+        secondary='task_ingredients'
     )
 
 
 from src.db.organizations.models import OrganizationModel
 from src.db.workers.models import WorkerModel
+from src.db.menu.models import IngredientModel
 from src.db.menu.models import FoodModel

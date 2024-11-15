@@ -63,6 +63,8 @@ services:
       - coffee_db
     networks:
       - app_network
+    volumes:
+      - ./generated_qr:/qr_codes
 
   user_tgbot:
     container_name: user_tgbot
@@ -74,13 +76,17 @@ services:
       - .env
     depends_on:
       - coffee_db
+      - admin_tgbot
     networks:
       - app_network
+    volumes:
+      - ./generated_qr:/qr_codes
 
 
 volumes:
   postgres-data:
   pgadmin-data:
+  qr_codes:
 
 networks:
   app_network:

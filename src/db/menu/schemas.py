@@ -4,19 +4,21 @@ from pydantic import BaseModel
 
 
 class FoodSchema(BaseModel):
-    id: int
+    id: Optional[int] = None
     name: str
-    food_group_id: int
+    organization_id: int
+
+    possible_ingredients: Optional[list["IngredientSchema"]] = []
 
     class Config:
         from_attributes = True
 
 
-class FoodGroupSchema(BaseModel):
-    id: int
+class IngredientSchema(BaseModel):
+    id: Optional[int] = None
     name: str
     organization_id: int
-    food: Optional[list[FoodSchema]] = None  # Вложенные модели
+    # foods: Optional[list["FoodSchema"]] = []
 
     class Config:
         from_attributes = True

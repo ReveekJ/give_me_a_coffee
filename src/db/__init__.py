@@ -1,4 +1,5 @@
-from src.db.food_orders.models import *
+from src.db.task_ingredients.models import *
+from src.db.possible_ingredients.models import *
 
 from src.db.organizations.models import *
 from src.db.organizations.schemas import *
@@ -21,4 +22,4 @@ OrganizationSchema.model_rebuild()
 WorkerSchema.model_rebuild()
 TaskSchema.model_rebuild()
 FoodSchema.model_rebuild()
-FoodGroupSchema.model_rebuild()
+IngredientSchema.model_rebuild()

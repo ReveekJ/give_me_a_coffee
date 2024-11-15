@@ -1,4 +1,6 @@
 .idea/*
+.idea
+.idea/
 schedule*.png
 *.log
 .venv/
@@ -14,4 +16,4 @@ nats/data/*
 nui/*
 /proto/*
 *.ipynb
-.idea
+generated_qr/*

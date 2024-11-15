@@ -26,13 +26,18 @@ class OrganizationModel(AsyncAttrs, Base):
         back_populates='organization',
         cascade='delete'
     )
-    menu: Mapped[Optional[list["FoodGroupModel"]]] = relationship(
+    foods: Mapped[Optional[list["FoodModel"]]] = relationship(
+        back_populates='organization',
+        cascade='delete'
+    )
+    ingredients: Mapped[Optional[list["IngredientModel"]]] = relationship(
         back_populates='organization',
         cascade='delete'
     )
 
 
 from src.db.workers.models import WorkerModel
-from src.db.menu.models import FoodGroupModel
+from src.db.menu.models import FoodModel
 from src.db.owners.models import OwnerModel
 from src.db.tasks.models import TaskModel
+from src.db.menu.models import IngredientModel

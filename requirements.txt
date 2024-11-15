@@ -8,5 +8,7 @@ uvloop
 aiodns
 pydantic-settings
 psycopg2-binary
+qrcode==8.0
+pillow==11.0.0
 
 python-dotenv~=1.0.1
