@@ -59,7 +59,7 @@ async def make_order_handler(callback: CallbackQuery, widget: Button, dialog_man
 
     # рассылка по работникам
     bot = callback.bot
-    order_text = f'Новая задача\n\n{get_text_of_order(dialog_data)}'
+    order_text = f'Новый заказ от {callback.from_user.first_name} {callback.from_user.last_name} ({callback.from_user.username})\n\n{get_text_of_order(dialog_data)}'
     message_ids = []
 
     for worker in WorkersDB.get_workers_by_organization_id(dialog_data.organization_id):

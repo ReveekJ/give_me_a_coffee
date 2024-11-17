@@ -34,6 +34,10 @@ class OrganizationModel(AsyncAttrs, Base):
         back_populates='organization',
         cascade='delete'
     )
+    locations: Mapped[Optional[list["LocationModel"]]] = relationship(
+        back_populates='organization',
+        cascade='delete'
+    )
 
 
 from src.db.workers.models import WorkerModel
@@ -41,3 +45,4 @@ from src.db.menu.models import FoodModel
 from src.db.owners.models import OwnerModel
 from src.db.tasks.models import TaskModel
 from src.db.menu.models import IngredientModel
+from src.db.locations.models import LocationModel

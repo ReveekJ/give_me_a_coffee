@@ -244,5 +244,13 @@ edit_menu_dialog = Dialog(
     # ),
     on_start=on_start_edit_menu_dialog
 )
-
 #  TODO: сделать окно изменения ингредиентов
+
+location_dialog = Dialog(
+    Window(
+        Multi(
+            Format('')
+        )
+    ),
+    on_start=
+)
