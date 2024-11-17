@@ -53,7 +53,7 @@ services:
 
   admin_tgbot:
     container_name: admin_tgbot
-    restart: "always"
+    restart: "no"
     build:
       context: .
       dockerfile: src/admin_tgbot/Dockerfile
@@ -68,7 +68,7 @@ services:
 
   user_tgbot:
     container_name: user_tgbot
-    restart: "always"
+    restart: "no"
     build:
       context: .
       dockerfile: src/user_tgbot/Dockerfile
@@ -79,16 +79,30 @@ services:
       - admin_tgbot
     networks:
       - app_network
+      - redis_network
     volumes:
       - ./generated_qr:/qr_codes
+
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - redis_network
 
 
 volumes:
   postgres-data:
   pgadmin-data:
-  qr_codes:
+  redis_data:
 
 networks:
   app_network:
+    driver: bridge
+  redis_network:
     driver: bridge
 
