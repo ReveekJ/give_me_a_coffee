@@ -9,6 +9,7 @@ from src.db.owners.crud import OwnerDB
 from src.db.owners.schemas import OwnerSchema
 from src.db.workers.crud import WorkersDB
 from src.db.workers.schemas import WorkerSchema
+from src.user_tgbot.order_food.states import OrderFoodSG
 
 start_router = Router()
 
@@ -34,4 +35,6 @@ async def start(message: Message, dialog_manager: DialogManager):
             organization = OrganizationDB.get_organization_by_id(int(txt.split('_')[-1]))
             await message.answer(f'Ты успешно присоединился(-ась) к организации "{organization.name}"')
         case 'user':
-            pass
+            await dialog_manager.start(OrderFoodSG.select_food, data={'organization_id': int(txt.split('_')[-1])})
+
+    await message.delete()
