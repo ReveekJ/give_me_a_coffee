@@ -168,6 +168,11 @@ edit_menu_dialog = Dialog(
             id='delete_food',
             state=EditMenuSG.delete_food
         ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='bacK',
+            state=EditMenuSG.select_food
+        ),
         state=EditMenuSG.choose_action_with_food
     ),
     Window(
@@ -239,3 +244,5 @@ edit_menu_dialog = Dialog(
     # ),
     on_start=on_start_edit_menu_dialog
 )
+
+#  TODO: сделать окно изменения ингредиентов

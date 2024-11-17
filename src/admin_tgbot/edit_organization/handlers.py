@@ -63,10 +63,13 @@ async def select_worker_handler(callback: CallbackQuery, widget: Button, dialog_
 
 async def delete_selected_worker(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
     dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
-
     dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
 
-    WorkersDB.delete_worker(dialog_data.selected_worker_id)
+    try:
+        WorkersDB.delete_worker(dialog_data.selected_worker_id)
+    except Exception as e:
+        await callback.message.answer('Невозможно удалить, вероятно потому что работник еще выполняет какую-то задачу')
+        return None
 
     await callback.message.answer("Работник успешно удален")
     await dialog_manager.switch_to(MainMenuSG.list_of_workers)

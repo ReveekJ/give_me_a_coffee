@@ -13,9 +13,12 @@ start_router = Router()
 @start_router.message(CommandStart())
 async def start(message: Message, dialog_manager: DialogManager):
     owner = OwnerSchema(id=message.from_user.id)
-    print(owner)
     if OwnerDB.get_owner_by_id(owner.id) is None:
-        print('я тут')
         OwnerDB.create_owner(owner)
+
+    try:
+        await dialog_manager.done()  # закрываем старый диалог
+    except Exception as e:
+        pass
 
     await dialog_manager.start(OrganizationSG.select_organization)
