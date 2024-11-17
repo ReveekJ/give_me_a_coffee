@@ -17,6 +17,14 @@ class WorkersDB:
             return WorkerSchema.model_validate(res, from_attributes=True)
 
     @staticmethod
+    def get_workers_by_organization_id(organization_id: int) -> list[WorkerSchema]:
+        with get_session() as session:
+            query = (select(WorkerModel).where(WorkerModel.organization_id == organization_id))
+            res = session.execute(query).scalars().all()
+
+            return [WorkerSchema.model_validate(i, from_attributes=True) for i in res]
+
+    @staticmethod
     def create_worker(worker: WorkerSchema) -> None:
         with get_session() as session:
             m = WorkerModel(**worker.model_dump())
