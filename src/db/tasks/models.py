@@ -15,6 +15,7 @@ class TaskModel(AsyncAttrs, Base):
     organization_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("organizations.id"))
     worker_id: Mapped[Optional[BigInteger]] = mapped_column(BigInteger, ForeignKey("workers.id"))
     food_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey("foods.id"))
+    location_id: Mapped[BigInteger] = mapped_column(BigInteger, ForeignKey('locations.id'))
 
     organization: Mapped["OrganizationModel"] = relationship(
         back_populates='tasks',
@@ -33,8 +34,13 @@ class TaskModel(AsyncAttrs, Base):
         secondary='task_ingredients'
     )
 
+    location: Mapped["LocationModel"] = relationship(
+        back_populates='tasks'
+    )
+
 
 from src.db.organizations.models import OrganizationModel
 from src.db.workers.models import WorkerModel
 from src.db.menu.models import IngredientModel
 from src.db.menu.models import FoodModel
+from src.db.locations.models import LocationModel

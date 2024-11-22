@@ -1,6 +1,7 @@
 from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.db.tasks.models import TaskModel
 from src.db_connect import Base
 
 
@@ -13,6 +14,9 @@ class LocationModel(Base):
 
     organization: Mapped["OrganizationModel"] = relationship(
         back_populates="locations",
+    )
+    tasks: Mapped["TaskModel"] = relationship(
+        back_populates='location'
     )
 
 

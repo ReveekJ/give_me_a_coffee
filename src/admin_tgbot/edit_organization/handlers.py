@@ -1,11 +1,15 @@
+from pyexpat.errors import messages
+
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, ManagedMultiselect
 
-from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData
-from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG
+from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData, LocationsData
+from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG
 from src.admin_tgbot.organizations.states import OrganizationSG
+from src.db.locations.crud import LocationsDB
+from src.db.locations.schemas import LocationSchema
 from src.db.menu.crud import FoodDB, IngredientsDB
 from src.db.menu.schemas import FoodSchema, IngredientSchema
 from src.db.possible_ingredients.crud import PossibleIngredientsDB
@@ -48,6 +52,17 @@ async def on_start_edit_menu_dialog(start_data: dict, dialog_manager: DialogMana
     org_id = start_data.get('organization_id')
 
     dialog_manager.dialog_data['dialog_data_dto'] = EditMenuData(
+        organization_id=org_id,
+    )
+
+
+async def on_start_location_dialog(start_data: dict, dialog_manager: DialogManager, *args, **kwargs):
+    if start_data.get('organization_id') is None:
+        raise ValueError('при старте диалога, нужно передать id организации')
+
+    org_id = start_data.get('organization_id')
+
+    dialog_manager.dialog_data['dialog_data_dto'] = LocationsData(
         organization_id=org_id,
     )
 
@@ -104,7 +119,6 @@ async def save_name_of_ingredient(message: Message, widget: MessageInput, dialog
 
     ingredient = IngredientSchema(
         name=message.text,
-        food_id=dialog_data.selected_food_id,
         organization_id=dialog_data.organization_id
     )
     IngredientsDB.create_ingredient(ingredient)
@@ -139,3 +153,46 @@ async def delete_food_handler(callback: CallbackQuery, widget: Button, dialog_ma
     FoodDB.delete_food(dialog_data.selected_food_id)
 
     await dialog_manager.switch_to(EditMenuSG.select_food)
+
+
+async def select_location(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: LocationsData = get_dialog_data_dto(dialog_manager)
+
+    dialog_data.selected_location = callback.data.split(':')[-1]
+    dialog_manager.dialog_data['dialog_data_dto'] = dialog_data
+
+    await dialog_manager.switch_to(LocationSG.actions_with_location)
+
+
+async def save_name_of_new_location(message: Message, widget: MessageInput, dialog_manager: DialogManager):
+    dialog_data: LocationsData = get_dialog_data_dto(dialog_manager)
+
+    location = LocationSchema(
+        name=message.text,
+        organization_id=dialog_data.organization_id
+    )
+    LocationsDB.create_location(location)
+
+    await dialog_manager.switch_to(LocationSG.select_location)
+
+
+async def delete_location(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: LocationsData = get_dialog_data_dto(dialog_manager)
+
+    LocationsDB.delete_location(dialog_data.selected_location)
+
+    await dialog_manager.switch_to(LocationSG.select_location)
+
+
+async def select_location_from_generate_qr(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
+
+    dialog_data.selected_location_for_qr = callback.data.split(':')[-1]
+    dialog_manager.dialog_data['dialog_data_dto'] = dialog_data
+
+    await dialog_manager.switch_to(MainMenuSG.generate_qr)
+
+
+async def go_to_edit_locations(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
+    await dialog_manager.start(LocationSG.select_location, data={'organization_id': dialog_data.organization_id})

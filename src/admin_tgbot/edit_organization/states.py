@@ -6,6 +6,7 @@ class MainMenuSG(StatesGroup):
     list_of_workers = State()
     actions_with_worker = State()
     add_workers = State()
+    select_location_for_generate_qr = State()
     generate_qr = State()
 
 
@@ -16,3 +17,10 @@ class EditMenuSG(StatesGroup):
     select_ingredient = State()
     enter_name_of_ingredient = State()
     delete_food = State()
+
+
+class LocationSG(StatesGroup):
+    select_location = State()
+    enter_name_of_new_location = State()
+    actions_with_location = State()
+    delete_location = State()

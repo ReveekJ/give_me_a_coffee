@@ -32,9 +32,9 @@ async def start(message: Message, dialog_manager: DialogManager):
 
             WorkersDB.create_worker(worker)
 
-            organization = OrganizationDB.get_organization_by_id(int(txt.split('_')[-1]))
+            organization = OrganizationDB.get_organization_by_id(int(txt.split('_')[1]))
             await message.answer(f'Ты успешно присоединился(-ась) к организации "{organization.name}"')
         case 'user':
-            await dialog_manager.start(OrderFoodSG.select_food, data={'organization_id': int(txt.split('_')[-1])})
-
+            await dialog_manager.start(OrderFoodSG.select_food, data={'organization_id': int(txt.split('_')[1]),
+                                                                      'location_id': int(txt.split('_')[2])})
     await message.delete()

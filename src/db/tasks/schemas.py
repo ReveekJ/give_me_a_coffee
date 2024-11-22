@@ -8,6 +8,7 @@ from src.db.menu.schemas import FoodSchema, IngredientSchema
 class TaskSchema(BaseModel):
     id: Optional[int] = None
     organization_id: int
+    location_id: int
     worker_id: Optional[int] = None
     food_id: int
 

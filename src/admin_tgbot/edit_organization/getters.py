@@ -4,7 +4,8 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.api.entities import MediaAttachment
 from aiogram_dialog.widgets.kbd import ManagedMultiselect
 
-from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData
+from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData, LocationsData
+from src.db.locations.crud import LocationsDB
 from src.db.menu.crud import FoodDB, IngredientsDB
 from src.db.organizations.crud import OrganizationDB
 from src.db.possible_ingredients.crud import PossibleIngredientsDB
@@ -59,8 +60,15 @@ async def ingredients_getter(event_from_user: User, dialog_manager: DialogManage
 
 async def qr_code_getter(event_from_user: User, dialog_manager: DialogManager, **kwargs):
     dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
-    link = f'https://t.me/give_me_a_coffee_please_bot?start=user_{dialog_data.organization_id}'
+    link = f'https://t.me/give_me_a_coffee_please_bot?start=user_{dialog_data.organization_id}_{dialog_data.selected_location_for_qr}'
     path_to_qr = generate_qr(link)
 
     return {'link': link,
             'qr_code': MediaAttachment(ContentType.PHOTO, path=path_to_qr)}
+
+
+async def locations_getter(event_from_user: User, dialog_manager: DialogManager, **kwargs):
+    dialog_data: LocationsData = get_dialog_data_dto(dialog_manager)
+    locations = LocationsDB.get_locations_by_organization_id(dialog_data.organization_id)
+
+    return {'locations': [(i.id, i.name) for i in locations]}

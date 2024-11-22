@@ -1,18 +1,19 @@
 from aiogram.enums import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Select, Group, Back, Multiselect
+from aiogram_dialog.widgets.kbd import Button, SwitchTo, Select, Group, Back, Multiselect, Cancel, Start
 from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.widgets.text import Format, Multi
 
 from src.admin_tgbot.edit_organization.getters import workers_getter, add_workers_getter, actions_with_worker_getter, \
-    foods_getter, ingredients_getter, qr_code_getter
+    foods_getter, ingredients_getter, qr_code_getter, locations_getter
 from src.admin_tgbot.edit_organization.handlers import on_start_main_dialog, select_worker_handler, \
     delete_selected_worker, back_to_organizations, on_start_edit_menu_dialog, select_food, \
     back_to_main_menu_of_edit_organization, go_to_edit_menu, save_name_of_food, save_name_of_ingredient, \
-    process_ingredient_select, delete_food_handler
+    process_ingredient_select, delete_food_handler, select_location, on_start_location_dialog, delete_location, \
+    save_name_of_new_location, select_location_from_generate_qr, go_to_edit_locations
 from src.admin_tgbot.edit_organization.schemas import EditMenuData
-from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG
+from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG
 
 edit_organization_dialog = Dialog(
     Window(
@@ -31,7 +32,12 @@ edit_organization_dialog = Dialog(
         SwitchTo(
             text=Format('Сгенерировать QR'),
             id='generate_qr',
-            state=MainMenuSG.generate_qr
+            state=MainMenuSG.select_location_for_generate_qr
+        ),
+        Button(
+            text=Format('Изменить локации'),
+            id='edit_locations',
+            on_click=go_to_edit_locations
         ),
         Button(
             text=Format('Назад'),
@@ -91,6 +97,28 @@ edit_organization_dialog = Dialog(
         ),
         getter=actions_with_worker_getter,
         state=MainMenuSG.actions_with_worker
+    ),
+    Window(
+        Multi(
+            Format('Выбери локацию')
+        ),
+        Group(
+            Select(
+                Format('{item[1]}'),
+                id='locations_list',
+                item_id_getter=lambda item: item[0],
+                items='locations',
+                on_click=select_location_from_generate_qr,
+            ),
+            width=2
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='back_from_locations',
+            state=MainMenuSG.main_menu
+        ),
+        getter=locations_getter,
+        state=MainMenuSG.select_location_for_generate_qr,
     ),
     Window(
         Multi(
@@ -249,8 +277,71 @@ edit_menu_dialog = Dialog(
 location_dialog = Dialog(
     Window(
         Multi(
-            Format('')
-        )
+            Format('Выбери локацию')
+        ),
+        Group(
+            Select(
+                Format('{item[1]}'),
+                id='locations_list',
+                item_id_getter=lambda item: item[0],
+                items='locations',
+                on_click=select_location,
+            ),
+            width=2
+        ),
+        SwitchTo(
+            text=Format('Создать локацию'),
+            id='create_location',
+            state=LocationSG.enter_name_of_new_location,
+        ),
+        Cancel(
+            text=Format('Назад')
+        ),
+        getter=locations_getter,
+        state=LocationSG.select_location,
     ),
-    on_start=
+    Window(
+        Format('Введи имя новой локации. Оно будет видно только тебе и работникам твоей организации, так что оно должно быть максимально понятным, но не обязано быть красивым))'),
+        MessageInput(
+            content_types=ContentType.TEXT,
+            func=save_name_of_new_location,
+        ),
+        Back(
+            text=Format('Назад')
+        ),
+        state=LocationSG.enter_name_of_new_location
+    ),
+    Window(
+        Multi(
+            Format('Выбери действие с локацией')  # TODO: подписать локацию
+        ),
+        SwitchTo(
+            text=Format('Удалить локацию'),
+            id='switch_to_delete_location',
+            state=LocationSG.delete_location
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='back_to_main_location_menu',
+            state=LocationSG.select_location
+        ),
+        state=LocationSG.actions_with_location
+    ),
+    Window(
+        Multi(
+            Format('Ты уверен, что хочешь удалить локацию? Это действие невозожно отменить')  # TODO: подписать локацию
+        ),
+        Button(
+            text=Format('Да, удалить'),
+            id='delete_location',
+            on_click=delete_location
+        ),
+        SwitchTo(
+            text=Format('Отмена, не удалять'),
+            id='no_delete',
+            state=LocationSG.actions_with_location
+        ),
+        state=LocationSG.delete_location
+    ),
+    on_start=on_start_location_dialog
 )

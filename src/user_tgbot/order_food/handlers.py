@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button, ManagedMultiselect
 
+from src.db.locations.crud import LocationsDB
 from src.db.menu.crud import FoodDB
 from src.db.task_ingredients.crud import TaskIngredientsDB
 from src.db.tasks.crud import TaskDB
@@ -19,12 +20,14 @@ from src.utils.task_messages_redis import TaskMessagesRedis, TaskMessageSchema
 
 
 async def on_start_order_food_dialog(start_data: dict, dialog_manager: DialogManager, *args, **kwargs):
-    if start_data.get('organization_id') is None:
-        raise ValueError('при старте диалога, нужно передать id организации')
+    if start_data.get('organization_id') is None or start_data.get('location_id') is None:
+        raise ValueError('при старте диалога, нужно передать id организации и локации')
 
     org_id = start_data.get('organization_id')
+    location_id = start_data.get('location_id')
     dialog_manager.dialog_data['dialog_data_dto'] = OrderFoodData(
         organization_id=org_id,
+        location_id=location_id
     )
 
 
@@ -53,13 +56,15 @@ async def make_order_handler(callback: CallbackQuery, widget: Button, dialog_man
     order = TaskSchema(
         organization_id=dialog_data.organization_id,
         food_id=dialog_data.food_id,
+        location_id=dialog_data.location_id
     )
     task_id = TaskDB.create_task(order)
     TaskIngredientsDB.create_link_task_ingredients(task_id, dialog_data.ingredients_ids)
 
     # рассылка по работникам
     bot = callback.bot
-    order_text = f'Новый заказ от {callback.from_user.first_name} {callback.from_user.last_name} ({callback.from_user.username})\n\n{get_text_of_order(dialog_data)}'
+    location = LocationsDB.get_location_by_id(dialog_data.location_id)
+    order_text = f'Новый заказ от {callback.from_user.first_name} {callback.from_user.last_name} (@{callback.from_user.username}) в локацию "{location.name}"\n\n{get_text_of_order(dialog_data)}'
     message_ids = []
 
     for worker in WorkersDB.get_workers_by_organization_id(dialog_data.organization_id):
