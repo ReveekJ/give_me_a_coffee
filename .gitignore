@@ -3,7 +3,7 @@
 .idea/
 schedule*.png
 *.log
-.venv/
+.venv*/
 __pycache__/
 qodana.yaml
 test/test.py
