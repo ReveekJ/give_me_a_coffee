@@ -1,19 +1,21 @@
 from aiogram.enums import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, SwitchTo, Select, Group, Back, Multiselect, Cancel, Start
+from aiogram_dialog.widgets.kbd import Button, SwitchTo, Select, Group, Back, Multiselect, Cancel
 from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.widgets.text import Format, Multi
 
 from src.admin_tgbot.edit_organization.getters import workers_getter, add_workers_getter, actions_with_worker_getter, \
-    foods_getter, ingredients_getter, qr_code_getter, locations_getter
+    foods_getter, ingredients_getter, qr_code_getter, locations_getter, all_ingrediens_getter, ingredient_name_getter
 from src.admin_tgbot.edit_organization.handlers import on_start_main_dialog, select_worker_handler, \
     delete_selected_worker, back_to_organizations, on_start_edit_menu_dialog, select_food, \
     back_to_main_menu_of_edit_organization, go_to_edit_menu, save_name_of_food, save_name_of_ingredient, \
     process_ingredient_select, delete_food_handler, select_location, on_start_location_dialog, delete_location, \
-    save_name_of_new_location, select_location_from_generate_qr, go_to_edit_locations
-from src.admin_tgbot.edit_organization.schemas import EditMenuData
-from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG
+    save_name_of_new_location, select_location_from_generate_qr, go_to_edit_locations, on_start_ingredient_dialog, \
+    select_ingredient, go_to_edit_ingredient, new_ingredient_name_input_handler, delete_ingredient_handler, \
+    save_name_of_new_ingredient_in_ingredient_dialog
+from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG, IngredientSG
+
 
 edit_organization_dialog = Dialog(
     Window(
@@ -29,15 +31,20 @@ edit_organization_dialog = Dialog(
             id='go_to_edit_menu',
             on_click=go_to_edit_menu
         ),
-        SwitchTo(
-            text=Format('Сгенерировать QR'),
-            id='generate_qr',
-            state=MainMenuSG.select_location_for_generate_qr
+        Button(
+            text=Format('Изменить ингредиенты'),
+            id='go_to_edit_ingredient',
+            on_click=go_to_edit_ingredient,
         ),
         Button(
             text=Format('Изменить локации'),
             id='edit_locations',
             on_click=go_to_edit_locations
+        ),
+        SwitchTo(
+            text=Format('Сгенерировать QR'),
+            id='generate_qr',
+            state=MainMenuSG.select_location_for_generate_qr
         ),
         Button(
             text=Format('Назад'),
@@ -274,6 +281,105 @@ edit_menu_dialog = Dialog(
 )
 #  TODO: сделать окно изменения ингредиентов
 
+ingredients_dialog = Dialog(
+    Window(
+        Multi(Format('Выбери ингредиент')),
+        Group(
+            Select(
+                Format('{item[1]}'),
+                id='ingredient_list',
+                item_id_getter=lambda item: item[0],
+                items='ingredients',
+                on_click=select_ingredient,
+            ),
+            width=2
+        ),
+        SwitchTo(
+            text=Format('Создать новый ингредиент'),
+            id='create_new_ingredient',
+            state=IngredientSG.enter_name_of_ingredient
+        ),
+        Button(
+            Format('Назад'),
+            id='back_from_ingredients',
+            on_click=back_to_main_menu_of_edit_organization,
+        ),
+        getter=all_ingrediens_getter,
+        state=IngredientSG.select_ingredient
+    ),
+    Window(
+        Multi(
+            Format('{ingredient_name}\n'),
+            Format('Выбери действие с ингредиентом')
+        ),
+        SwitchTo(
+            Format('Переименовать ингредиент'),
+            id='rename_ingredient',
+            state=IngredientSG.rename_ingredient,
+        ),
+        SwitchTo(
+            Format('Удалить ингредиент'),
+            id='delete_ingredient',
+            state=IngredientSG.approve_delete_ingredient,
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='back',
+            state=IngredientSG.select_ingredient,
+        ),
+        getter=ingredient_name_getter,
+        state=IngredientSG.ingredient_options
+    ),
+    Window(
+        Multi(
+            Format('Введите новое название ингредиента')
+        ),
+        MessageInput(
+            content_types=ContentType.TEXT,
+            func=new_ingredient_name_input_handler,
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='_back_',
+            state=IngredientSG.ingredient_options
+        ),
+        state=IngredientSG.rename_ingredient
+    ),
+    Window(
+        Multi(
+            Format('Вы уверены, что хотите удалить ингредиент {ingredient_name}')
+        ),
+        Button(
+            text=Format('Удалить ингредиент'),
+            id='delete_please',
+            on_click=delete_ingredient_handler,
+        ),
+        SwitchTo(
+            text=Format('Нет, не удалять'),
+            id='no_delete_please',
+            state=IngredientSG.ingredient_options
+        ),
+        getter=ingredient_name_getter,
+        state=IngredientSG.approve_delete_ingredient
+    ),
+    Window(
+        Multi(
+            Format('Введи название нового ингредиента')
+        ),
+        MessageInput(
+            content_types=ContentType.TEXT,
+            func=save_name_of_new_ingredient_in_ingredient_dialog
+        ),
+        SwitchTo(
+            text=Format('Назад'),
+            id='back',
+            state=IngredientSG.select_ingredient
+        ),
+        state=IngredientSG.enter_name_of_ingredient
+    ),
+    on_start=on_start_ingredient_dialog
+)
+
 location_dialog = Dialog(
     Window(
         Multi(
@@ -329,7 +435,7 @@ location_dialog = Dialog(
     ),
     Window(
         Multi(
-            Format('Ты уверен, что хочешь удалить локацию? Это действие невозожно отменить')  # TODO: подписать локацию
+            Format('Ты уверен, что хочешь удалить локацию? Это действие невозможно отменить')  # TODO: подписать локацию
         ),
         Button(
             text=Format('Да, удалить'),

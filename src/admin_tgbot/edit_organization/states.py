@@ -24,3 +24,13 @@ class LocationSG(StatesGroup):
     enter_name_of_new_location = State()
     actions_with_location = State()
     delete_location = State()
+
+
+class IngredientSG(StatesGroup):
+    select_ingredient = State()
+    # enter_name_of_new_ingredient = State()
+    ingredient_options = State()
+    rename_ingredient = State()
+    approve_delete_ingredient = State()
+    enter_name_of_ingredient = State()
+

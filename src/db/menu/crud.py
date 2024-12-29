@@ -1,4 +1,5 @@
 from sqlalchemy import select, delete, Sequence, update, values
+from sqlalchemy.orm.base import state_str
 
 from src.db.menu.models import FoodModel, IngredientModel
 from src.db.menu.schemas import FoodSchema, IngredientSchema
@@ -61,6 +62,13 @@ class IngredientsDB:
             return [IngredientSchema.model_validate(i, from_attributes=True) for i in res]  # IDE хоть и ругается, но все работает
 
     @staticmethod
+    def update_name(ingredient_id: int, name: str) -> None:
+        with get_session() as session:
+            stmt = update(IngredientModel).where(IngredientModel.id == ingredient_id).values(name=name)
+            session.execute(stmt)
+            session.commit()
+
+    @staticmethod
     def create_ingredient(ingredient: IngredientSchema) -> int:
         with get_session() as session:
             m = IngredientModel(**ingredient.model_dump(exclude={'id'}))
@@ -70,8 +78,8 @@ class IngredientsDB:
             return int(str(m.id))
 
     @staticmethod
-    def delete_ingredient(food_group_id: int) -> None:
+    def delete_ingredient(ingredient_id: int) -> None:
         with get_session() as session:
-            stmt = delete(FoodModel).where(FoodModel.id == food_group_id)
+            stmt = delete(IngredientModel).where(IngredientModel.id == ingredient_id)
             session.execute(stmt)
             session.commit()

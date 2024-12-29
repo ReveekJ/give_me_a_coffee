@@ -5,8 +5,8 @@ from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, ManagedMultiselect
 
-from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData, LocationsData
-from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG
+from src.admin_tgbot.edit_organization.schemas import MainMenuData, EditMenuData, LocationsData, IngredientsData
+from src.admin_tgbot.edit_organization.states import MainMenuSG, EditMenuSG, LocationSG, IngredientSG
 from src.admin_tgbot.organizations.states import OrganizationSG
 from src.db.locations.crud import LocationsDB
 from src.db.locations.schemas import LocationSchema
@@ -33,6 +33,19 @@ async def go_to_edit_menu(callback: CallbackQuery, widget: Button, dialog_manage
     dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
 
     await dialog_manager.start(EditMenuSG.select_food, data={'organization_id': dialog_data.organization_id})
+
+
+async def go_to_edit_ingredient(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
+
+    await dialog_manager.start(IngredientSG.select_ingredient, data={'organization_id': dialog_data.organization_id})
+
+
+async def new_ingredient_name_input_handler(message: Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: IngredientsData = get_dialog_data_dto(dialog_manager)
+
+    IngredientsDB.update_name(dialog_data.selected_ingredient, message.text)
+    await dialog_manager.switch_to(IngredientSG.ingredient_options)
 
 
 async def on_start_main_dialog(start_data: dict, dialog_manager: DialogManager, *args, **kwargs):
@@ -66,6 +79,16 @@ async def on_start_location_dialog(start_data: dict, dialog_manager: DialogManag
         organization_id=org_id,
     )
 
+
+async def on_start_ingredient_dialog(start_data: dict, dialog_manager: DialogManager, *args, **kwargs):
+    if start_data.get('organization_id') is None:
+        raise ValueError('при старте диалога, нужно передать id организации')
+
+    org_id = start_data.get('organization_id')
+
+    dialog_manager.dialog_data['dialog_data_dto'] = IngredientsData(
+        organization_id=org_id,
+    )
 
 async def select_worker_handler(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
     dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
@@ -124,6 +147,18 @@ async def save_name_of_ingredient(message: Message, widget: MessageInput, dialog
     IngredientsDB.create_ingredient(ingredient)
 
     await dialog_manager.switch_to(EditMenuSG.select_ingredient)
+
+
+async def save_name_of_new_ingredient_in_ingredient_dialog(message: Message, widget: MessageInput, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: IngredientsData = get_dialog_data_dto(dialog_manager)
+
+    ingredient = IngredientSchema(
+        name=message.text,
+        organization_id=dialog_data.organization_id
+    )
+    IngredientsDB.create_ingredient(ingredient)
+
+    await dialog_manager.switch_to(IngredientSG.select_ingredient)
 
 
 async def process_ingredient_select(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
@@ -196,3 +231,20 @@ async def select_location_from_generate_qr(callback: CallbackQuery, widget: Butt
 async def go_to_edit_locations(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
     dialog_data: MainMenuData = get_dialog_data_dto(dialog_manager)
     await dialog_manager.start(LocationSG.select_location, data={'organization_id': dialog_data.organization_id})
+
+
+async def select_ingredient(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: IngredientsData = get_dialog_data_dto(dialog_manager)
+    dialog_data.selected_ingredient = callback.data.split(':')[-1]
+
+    dialog_manager.dialog_data['dialog_data_dto'] = dialog_data
+
+    await dialog_manager.switch_to(IngredientSG.ingredient_options)
+
+
+async def delete_ingredient_handler(callback: CallbackQuery, widget: Button, dialog_manager: DialogManager, *args, **kwargs):
+    dialog_data: IngredientsData = get_dialog_data_dto(dialog_manager)
+
+    IngredientsDB.delete_ingredient(dialog_data.selected_ingredient)
+
+    await dialog_manager.switch_to(IngredientSG.select_ingredient)

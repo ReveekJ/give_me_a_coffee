@@ -20,3 +20,8 @@ class EditMenuData(BaseModel):
 class LocationsData(BaseModel):
     organization_id: int
     selected_location: Optional[int] = None
+
+
+class IngredientsData(BaseModel):
+    organization_id: int
+    selected_ingredient: Optional[int] = None
